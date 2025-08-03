@@ -47,18 +47,49 @@ hackathon-ai-auditor/
 └── docs/             # Documentation
 ```
 
+## 📜 Documentation
+
+### ✅ What's Done
+
+- **Cerebras Integration**: Replaced OpenAI with Cerebras for enhanced code analysis.
+- **Security Analysis**: Identifies security vulnerabilities, including SQL injection, XSS.
+- **Performance Optimization**: Detects memory leaks, inefficient algorithms.
+- **Code Quality Checks**: Highlights code smells, best practices, and maintainability issues.
+- **GitHub Webhook Support**: Seamless integration with CI/CD pipelines.
+- **Demo Scripts**: Ready-to-run scripts to showcase the tool's capabilities.
+
+### 🚀 What's Next
+
+- **Enhance Frontend**: Implement a responsive React dashboard for better visualization.
+- **Extend Language Support**: Add support for more programming languages.
+- **Advanced Configurations**: Allow user-defined rules and custom setups.
+- **Real-time Collaboration**: Live analysis while coding in shared environments.
+
 ## 🚀 Getting Started
 
-```bash
-# Start the backend
-cd backend && go run main.go
+1. **Environment Setup**
 
-# Start the frontend  
-cd frontend && npm start
+   ```bash
+   cp backend/.env.example backend/.env
+   # Fill in your credentials and configuration
 
-# Run analysis
-./scripts/analyze-repo.sh https://github.com/user/repo
-```
+   # Ensure Cerebras API is configured correctly
+   export CEREBRAS_API_KEY="your_cerebras_api_key"
+   export CEREBRAS_API_URL="https://api.cerebras.ai/v1/chat/completions"
+   ```
+
+2. **Start the Backend**
+
+   ```bash
+   cd backend 
+   go run main.go
+   ```
+
+3. **Run the Demo**
+
+   ```bash
+   bash demo/test-analysis.sh
+   ```
 
 ---
 **Built with ❤️ for the Cerebras Hackathon**
