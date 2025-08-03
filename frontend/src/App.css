@@ -1,0 +1,80 @@
+.app {
+  text-align: center;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.app-header {
+  background-color: #282c34;
+  padding: 20px;
+  color: white;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.app-main {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.report-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.report-card {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+.report-card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.report-detail {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: left;
+}
+
+.findings-list {
+  margin-top: 20px;
+}
+
+.finding-item {
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.finding-item.high {
+  border-left: 4px solid #ff0000;
+}
+
+.finding-item.medium {
+  border-left: 4px solid #ffa500;
+}
+
+.finding-item.low {
+  border-left: 4px solid #0000ff;
+}
+
+.back-button {
+  margin-bottom: 20px;
+  background-color: #4F46E5;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}

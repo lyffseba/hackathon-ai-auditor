@@ -1,0 +1,60 @@
+.report-detail {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: left;
+}
+
+.back-button {
+  margin-bottom: 20px;
+  background-color: #4F46E5;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.report-header {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.report-summary {
+  background-color: #e9ecef;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.findings-list {
+  margin-top: 20px;
+}
+
+.finding-item {
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.finding-item.high {
+  border-left: 4px solid #dc3545;
+}
+
+.finding-item.medium {
+  border-left: 4px solid #ffc107;
+}
+
+.finding-item.low {
+  border-left: 4px solid #28a745;
+}
+
+.finding-item pre {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
