@@ -17,11 +17,14 @@ func main() {
 	// Create a Gin router with default middleware
 	router := gin.Default()
 
-	// Initialize analysis engine
-	analyzer := analysis.NewAnalyzer(cfg.OpenAIKey)
+	// Initialize Cerebras-powered analysis engine
+	analyzer := analysis.NewAnalyzer(cfg.CerebrasAPIKey, cfg.CerebrasAPIURL)
 
 	// Setup handlers with dependencies
-	h := &handlers.Handlers{Analyzer: analyzer}
+	h := &handlers.Handlers{
+		Analyzer:      analyzer,
+		WebhookSecret: cfg.GitHubSecret,
+	}
 
 	// Setup routes with handlers
 	routes.SetupRoutes(router, h)

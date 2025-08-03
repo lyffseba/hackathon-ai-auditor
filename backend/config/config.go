@@ -9,7 +9,10 @@ import (
 type Config struct {
 	ServerPort     int
 	GitHubToken    string
-	OpenAIKey      string
+	GitHubSecret   string `env:"GITHUB_SECRET" default:""`
+	CerebrasAPIKey string
+	CerebrasAPIURL string
+	OpenAIKey      string // Keep as fallback
 	DatabaseURL    string
 	LogLevel       string
 	MaxReportCount int
@@ -27,9 +30,17 @@ func LoadConfig() *Config {
 		maxReports = 100 // default max reports
 	}
 
+	cerebrasAPIURL := os.Getenv("CEREBRAS_API_URL")
+	if cerebrasAPIURL == "" {
+		cerebrasAPIURL = "https://api.cerebras.ai/v1/chat/completions" // default Cerebras endpoint
+	}
+
 	return &Config{
 		ServerPort:     port,
 		GitHubToken:    os.Getenv("GITHUB_TOKEN"),
+		GitHubSecret:   os.Getenv("GITHUB_SECRET"),
+		CerebrasAPIKey: os.Getenv("CEREBRAS_API_KEY"),
+		CerebrasAPIURL: cerebrasAPIURL,
 		OpenAIKey:      os.Getenv("OPENAI_API_KEY"),
 		DatabaseURL:    os.Getenv("DATABASE_URL"),
 		LogLevel:       os.Getenv("LOG_LEVEL"),

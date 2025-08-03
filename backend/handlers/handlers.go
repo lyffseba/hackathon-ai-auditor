@@ -1,17 +1,24 @@
 package handlers
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"hackathon-ai-auditor-backend/analysis"
 	"hackathon-ai-auditor-backend/models"
+	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/go-github/v52/github"
 )
 
 // HealthCheck returns the status of the backend service
-func HealthCheck(c *gin.Context) {
+func (h *Handlers) HealthCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":    "ok",
 		"message":   "AI Code Auditor backend is running",
@@ -21,7 +28,8 @@ func HealthCheck(c *gin.Context) {
 
 // Handlers contains all handler functions with dependencies
 type Handlers struct {
-	Analyzer *analysis.Analyzer
+	Analyzer      *analysis.Analyzer
+	WebhookSecret string
 }
 
 // AnalyzeCode performs code analysis on the provided code snippet
@@ -78,21 +86,44 @@ func calculateSummary(findings []models.Finding) models.Summary {
 }
 
 // GitHubWebhook handles incoming GitHub webhooks
-func GitHubWebhook(c *gin.Context) {
-	// Get the event type from the header
-	eventType := c.GetHeader("X-GitHub-Event")
+func (h *Handlers) GitHubWebhook(c *gin.Context) {
+	payload, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
+		return
+	}
 
-	// In a real implementation, this would handle GitHub webhooks
-	// and trigger code analysis on pull requests
-	c.JSON(http.StatusOK, gin.H{
-		"status":     "success",
-		"message":    "Webhook received",
-		"event_type": eventType,
-	})
+	eventType := c.GetHeader("X-GitHub-Event")
+	signature := c.GetHeader("X-Hub-Signature-256")
+
+	if err := h.VerifySignature(payload, signature); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid signature"})
+		return
+	}
+
+	// Process the event based on eventType
+	switch eventType {
+	case "ping":
+		c.JSON(http.StatusOK, gin.H{"status": "pong"})
+	case "pull_request":
+		var prEvent github.PullRequestEvent
+		if err := json.Unmarshal(payload, &prEvent); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload"})
+			return
+		}
+		// Trigger analysis for the PR
+		c.JSON(http.StatusOK, gin.H{"status": "success", "event": "pull_request"})
+	default:
+		c.JSON(http.StatusOK, gin.H{
+			"status":     "success",
+			"message":    "Webhook received",
+			"event_type": eventType,
+		})
+	}
 }
 
 // BatchAnalysis performs analysis on multiple files or repositories
-func BatchAnalysis(c *gin.Context) {
+func (h *Handlers) BatchAnalysis(c *gin.Context) {
 	// In a real implementation, this would handle batch analysis requests
 	// For now, we'll return a mock report ID
 	reportID := fmt.Sprintf("batch_report_%d", time.Now().Unix())
@@ -105,7 +136,7 @@ func BatchAnalysis(c *gin.Context) {
 }
 
 // GetReport retrieves a specific analysis report by ID
-func GetReport(c *gin.Context) {
+func (h *Handlers) GetReport(c *gin.Context) {
 	reportID := c.Param("id")
 
 	// In a real implementation, this would retrieve a report from storage
@@ -146,7 +177,7 @@ func GetReport(c *gin.Context) {
 }
 
 // ListReports returns a list of all analysis reports
-func ListReports(c *gin.Context) {
+func (h *Handlers) ListReports(c *gin.Context) {
 	// In a real implementation, this would list reports from storage
 	// For now, we'll return mock reports using our models
 
@@ -253,4 +284,27 @@ func ListReports(c *gin.Context) {
 		"status":  "success",
 		"reports": reports,
 	})
+}
+
+// VerifySignature verifies the HMAC signature of the payload
+func (h *Handlers) VerifySignature(payload []byte, signature string) error {
+	if h.WebhookSecret == "" {
+		return nil // Skip verification if no secret is set
+	}
+
+	hmac256 := hmac.New(sha256.New, []byte(h.WebhookSecret))
+	hmac256.Write(payload)
+	computed := hmac256.Sum(nil)
+
+	signature = strings.TrimPrefix(signature, "sha256=")
+	decoded, err := hex.DecodeString(signature)
+	if err != nil {
+		return fmt.Errorf("invalid signature format")
+	}
+
+	if !hmac.Equal(decoded, computed) {
+		return fmt.Errorf("invalid signature")
+	}
+
+	return nil
 }
